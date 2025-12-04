@@ -1,12 +1,14 @@
 from core.redis import get_redis
 
-REQUEST_QUEUE = "jobs:request" 
-RESPONSE_QUEUE = "jobs:response:"
+CPU_REQUEST_QUEUE = "function:queue:cpu"
+GPU_REQUEST_QUEUE = "function:queue:gpu"
+RESPONSE_CHANNEL = "function:result" 
 
-def push_job(job_id: str, result: str):
+def pop_job(use_gpu: bool = False):
     redis = get_redis()
-    redis.rpush(f"{RESPONSE_QUEUE}{job_id}", result)
+    queue = GPU_REQUEST_QUEUE if use_gpu else CPU_REQUEST_QUEUE
+    return redis.blpop(queue)
 
-def pop_job():
+def publish_result(job_id: str, result: str):
     redis = get_redis()
-    return redis.blpop(REQUEST_QUEUE)
+    redis.publish(f"{RESPONSE_CHANNEL}:{job_id}", result)
