@@ -1,12 +1,11 @@
 from pydantic import BaseModel
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 class ExecutionRequest(BaseModel):
-    request_id: int
-    function_name: str
+    request_id: str
+    function_id: str
     runtime: str
-    function_code: str
-    env_vars: Optional[Dict[str, str]] = None
+    args: Optional[Dict[str, Any]] = None
     use_gpu: bool = False
 
 class ExecutionResult(BaseModel):

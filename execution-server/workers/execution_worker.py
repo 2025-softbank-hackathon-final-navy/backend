@@ -5,7 +5,7 @@ import time
 from typing import Dict, Any
 
 from utils.queue import pop_job, publish_result
-from schemas.temp import ExecutionRequest, ExecutionResult
+from schemas.execution import ExecutionRequest, ExecutionResult
 
 IMAGE_MAP = {
     "python": "registry/python-runner:3.10",

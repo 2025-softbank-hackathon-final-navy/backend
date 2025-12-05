@@ -1,17 +1,28 @@
 import os
 import boto3
 from dotenv import load_dotenv
+from schemas.execution import ExecutionRequest
 
 load_dotenv()
 
-def download_file():
+s3 = boto3.client("s3")
+BUCKET = os.getenv("AWS_BUCKET")
+
+def download_file(request: ExecutionRequest):
     try:
-        dataset_path = f'dataset/{}.py'
+        response = s3.list_objects_v2(
+            Bucket=BUCKET,
+            Prefix=request.function_id
+        )
 
-        bucket = boto3.resource('s3').Bucket(os.getenv('AWS_BUCKET'))
-        bucket.download_file(f'/{}.py', dataset_path)
+        file_key = response["Contents"][0]["Key"]
+        filename = os.path.basename(file_key)
+        save_path = f"usercode/{filename}"
 
-        return dataset_path
+        s3.download_file(BUCKET, file_key, save_path)
+
+        return save_path
 
     except Exception as e:
-        print(e)
+        print(f"[download_file] ERROR:", e)
+        raise e
